@@ -26,6 +26,10 @@ node_modules
 # Generated files
 bin/
 gen/
+.idea
+/.idea/workspace.xml
+/.idea/libraries
+*.iml
 
 # Gradle files
 .gradle/
@@ -39,3 +43,4 @@ proguard/
 
 # Log Files
 *.log
+
