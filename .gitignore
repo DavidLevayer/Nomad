@@ -44,3 +44,7 @@ proguard/
 # Log Files
 *.log
 
+# Files with Google Keys
+app/src/main/java/android/nomadproject/com/nomad/key
+app/src/main/java/android/nomadproject/com/nomad/key/*
+
