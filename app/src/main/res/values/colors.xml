@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="list_item_background_unselected">#FFF</color>
+    <color name="list_item_background_selected">#F5F5F5</color>
+    <color name="list_item_background_pressed">#F5F5F5</color>
+
+    <color name="actionbar">#af424242</color>
+
+</resources>

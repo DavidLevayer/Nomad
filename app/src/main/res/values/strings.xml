@@ -3,4 +3,15 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
+    <string name="opendrawer">openDrawer</string>
+    <string name="closedrawer">closeDrawer</string>
+
+    <string-array name="menu_titles_array">
+        <item>Carte</item>
+        <item>Liste des lieux</item>
+        <item>Mes lieux</item>
+        <item>Paramètres</item>
+    </string-array>
+
 </resources>
