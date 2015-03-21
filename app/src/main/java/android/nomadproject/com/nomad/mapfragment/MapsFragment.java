@@ -28,16 +28,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 /**
  * Created by David Levayer on 20/03/15.
  */
-public class MapsFragment extends Fragment
-        implements GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener {
+public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClickListener {
 
     protected View mView;
     protected Context mContext;
 
-    private MapFragment fragment;
-    private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private LocationManager locationManager;
-    private LocationListener locationListener;
+    private static int MAPS_LOCATION_UPDATE = 20000;
+
+    private MapFragment mMapFragment;
+    private GoogleMap mMap;
+    private LocationManager mLocationManager;
+    private LocationListener mLocationListener;
     private Location location;
 
     @Override
@@ -48,11 +49,14 @@ public class MapsFragment extends Fragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        // Chargement d'un sous-fragment contenant la map
         FragmentManager fm = getChildFragmentManager();
-        fragment = (MapFragment) fm.findFragmentById(R.id.map_container);
-        if (fragment == null) {
-            fragment = MapFragment.newInstance();
-            fm.beginTransaction().replace(R.id.map_container, fragment).commit();
+        mMapFragment = (MapFragment) fm.findFragmentById(R.id.map_container);
+        if (mMapFragment == null) {
+            // On créé une instance de MapFragment (il ne faut pas passer par le constructeur !)
+            mMapFragment = MapFragment.newInstance();
+            // Chargement effectif du sous-fragment
+            fm.beginTransaction().replace(R.id.map_container, mMapFragment).commit();
         }
     }
 
@@ -60,16 +64,17 @@ public class MapsFragment extends Fragment
     public void onResume() {
         super.onResume();
         if (mMap == null) {
-            mMap = fragment.getMap();
+            // Au besoin (pas déjà fait), on recharge la map
+            mMap = mMapFragment.getMap();
             setUpMap();
         }
     }
 
     private void setUpMap() {
 
-        // Ajout de la carte comme listener de click sur les markers
-        mMap.setOnMarkerClickListener(this);
+        // Trigger les clics sur les descriptions des markers
         mMap.setOnInfoWindowClickListener(this);
+
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
 
             @Override
@@ -100,62 +105,55 @@ public class MapsFragment extends Fragment
         mMap.setMyLocationEnabled(true);
 
         // Getting LocationManager object from System Service LOCATION_SERVICE
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        mLocationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
         // Creating a criteria object to retrieve provider
         Criteria criteria = new Criteria();
 
         // Getting the name of the best provider
-        String provider = locationManager.getBestProvider(criteria, true);
+        String provider = mLocationManager.getBestProvider(criteria, true);
 
         // Getting Current Location
-        location = locationManager.getLastKnownLocation(provider);
+        location = mLocationManager.getLastKnownLocation(provider);
 
-        locationListener = new LocationListener() {
+        mLocationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 if(location!=null) {
-                    CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
+                    CameraUpdate center = CameraUpdateFactory.newLatLng(
+                            new LatLng(location.getLatitude(),
+                                    location.getLongitude()));
                     mMap.moveCamera(center);
                 }
             }
-            public void onProviderDisabled(String provider) {
-            }
-            public void onProviderEnabled(String provider) {
-            }
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-            }
+            public void onProviderDisabled(String provider) { }
+            public void onProviderEnabled(String provider) { }
+            public void onStatusChanged(String provider, int status, Bundle extras) { }
         };
 
         if(location!=null)
         {
-            CameraUpdate center= CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 10);
+            CameraUpdate center= CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(location.getLatitude(), location.getLongitude()),
+                    10);
+
             mMap.moveCamera(center);
 
             mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(location.getLatitude(), location.getLongitude()))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
                     .title("TITLE")
                     .snippet("Text de description blablabla"));
         }
 
-        //MARKER TEST
-        /*mMap.addMarker(new MarkerOptions()
-                .position(new LatLng(0, 0))
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                .title("CACA")
-                .snippet("Population: 4,137,400"));*/
-
-        locationManager.requestLocationUpdates(provider,20000,0,locationListener);
-    }
-
-    @Override
-    public boolean onMarkerClick(Marker marker) {
-
-        return false;
+        mLocationManager.requestLocationUpdates(
+                provider,
+                MAPS_LOCATION_UPDATE,
+                0,
+                mLocationListener);
     }
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Toast.makeText(getActivity(),"Info",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(),"onInfoWindowClick",Toast.LENGTH_SHORT).show();
     }
 }
