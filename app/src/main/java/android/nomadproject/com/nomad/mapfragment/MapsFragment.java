@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -154,6 +153,14 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Toast.makeText(getActivity(),"onInfoWindowClick",Toast.LENGTH_SHORT).show();
+
+        Bundle b = new Bundle();
+        b.putString(MapsDialogFragment.TITLE,marker.getTitle());
+        b.putString(MapsDialogFragment.INFO,marker.getSnippet());
+
+        FragmentManager fm = getFragmentManager();
+        MapsDialogFragment mDialogFragment = new MapsDialogFragment();
+        mDialogFragment.setArguments(b);
+        mDialogFragment.show(fm, "maps_dialog_fragment");
     }
 }
