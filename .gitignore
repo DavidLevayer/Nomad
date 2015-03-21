@@ -45,6 +45,5 @@ proguard/
 *.log
 
 # Files with Google Keys
-app/src/main/java/android/nomadproject/com/nomad/key
-app/src/main/java/android/nomadproject/com/nomad/key/*
+app/src/main/res/values/google_maps_api.xml
 
