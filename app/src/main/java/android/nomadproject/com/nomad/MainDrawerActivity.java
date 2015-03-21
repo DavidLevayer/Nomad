@@ -2,6 +2,10 @@ package android.nomadproject.com.nomad;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.app.Fragment;
+import android.nomadproject.com.nomad.mapfragment.MapsFragment;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -48,6 +52,10 @@ public class MainDrawerActivity extends Activity
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
+        if (savedInstanceState == null) {
+            selectItem(0);
+        }
+
     }
 
 
@@ -75,6 +83,27 @@ public class MainDrawerActivity extends Activity
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        selectItem(position);
+    }
 
+    private void selectItem(int position) {
+
+        Fragment fragment;
+
+        switch(position){
+            case 0:
+                fragment = new MapsFragment();
+                break;
+            default:
+                fragment = new MapsFragment();
+        }
+
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        ft.replace(R.id.content_frame, fragment);
+        ft.commit();
+
+        mDrawerList.setItemChecked(position,true);
+        mDrawerLayout.closeDrawer(mDrawerList);
     }
 }
