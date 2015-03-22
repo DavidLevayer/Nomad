@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -42,13 +43,25 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
     private GoogleMap mMap;
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
-    private Location location;
+    private Location mLocation;
 
     private MarkerDataSource mDataSource;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_map_main, container, false);
+
+        View v = inflater.inflate(R.layout.fragment_map_main, container, false);
+        Button refresh = (Button) v.findViewById(R.id.map_button);
+        refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mDataSource != null){
+                    mDataSource.deleteAllMarkers();
+                    loadMarkers();
+                }
+            }
+        });
+        return v;
     }
 
     @Override
@@ -109,7 +122,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
                 TextView info = (TextView) v.findViewById(R.id.info_content);
                 info.setText(marker.getSnippet());
 
-                ImageView image = (ImageView)v.findViewById(R.id.info_image);
+                ImageView image = (ImageView) v.findViewById(R.id.info_image);
                 image.setImageResource(R.drawable.demo_image);
 
                 return v;
@@ -128,15 +141,12 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
         String provider = mLocationManager.getBestProvider(criteria, true);
 
         // Getting Current Location
-        location = mLocationManager.getLastKnownLocation(provider);
+        mLocation = mLocationManager.getLastKnownLocation(provider);
 
         mLocationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 if(location!=null) {
-                    CameraUpdate center = CameraUpdateFactory.newLatLng(
-                            new LatLng(location.getLatitude(),
-                                    location.getLongitude()));
-                    mMap.moveCamera(center);
+                    mLocation = location;
                 }
             }
             public void onProviderDisabled(String provider) { }
@@ -144,19 +154,13 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
             public void onStatusChanged(String provider, int status, Bundle extras) { }
         };
 
-        if(location!=null)
+        if(mLocation !=null)
         {
             CameraUpdate center= CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(location.getLatitude(), location.getLongitude()),
-                    10);
+                    new LatLng(mLocation.getLatitude(), mLocation.getLongitude()),
+                    15);
 
             mMap.moveCamera(center);
-
-            mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(location.getLatitude(), location.getLongitude()))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                    .title("TITLE")
-                    .snippet("Text de description blablabla"));
         }
 
         loadMarkers();
@@ -218,5 +222,23 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
                 "Description du Service de travail",
                 48.424861f,
                 -71.047181f));
+
+        database.createCustomMarker(new CustomMarker(
+                "Loge M'entraide",
+                "Description de Loge M'entraide",
+                48.427896f,
+                -71.067512f));
+
+        database.createCustomMarker(new CustomMarker(
+                "Lastuse du Saguenay",
+                "Description du Lastuse",
+                48.426032f,
+                -71.055818f));
+
+        database.createCustomMarker(new CustomMarker(
+                "Aide juridique",
+                "Description de l'aide juridique",
+                48.427702f,
+                -71.060376f));
     }
 }

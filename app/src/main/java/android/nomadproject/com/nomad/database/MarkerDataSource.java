@@ -73,6 +73,10 @@ public class MarkerDataSource {
                 + " = " + id, null);
     }
 
+    public void deleteAllMarkers(){
+        database.delete(DatabaseOpenHelper.TABLE_COMMENTS, null, null);
+    }
+
     public List<CustomMarker> getAllCustomMarkers() {
         List<CustomMarker> comments = new ArrayList<CustomMarker>();
 
