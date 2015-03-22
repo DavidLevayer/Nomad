@@ -8,6 +8,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.nomadproject.com.nomad.R;
+import android.nomadproject.com.nomad.database.CustomMarker;
+import android.nomadproject.com.nomad.database.MarkerDataSource;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +26,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.List;
+
 /**
  * Created by David Levayer on 20/03/15.
  */
@@ -39,6 +43,8 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
     private Location location;
+
+    private MarkerDataSource mDataSource;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -67,6 +73,15 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
             mMap = mMapFragment.getMap();
             setUpMap();
         }
+        if(mDataSource != null)
+            mDataSource.open();
+    }
+
+    @Override
+    public void onPause() {
+        if(mDataSource != null)
+            mDataSource.close();
+        super.onPause();
     }
 
     private void setUpMap() {
@@ -144,6 +159,8 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
                     .snippet("Text de description blablabla"));
         }
 
+        loadMarkers();
+
         mLocationManager.requestLocationUpdates(
                 provider,
                 MAPS_LOCATION_UPDATE,
@@ -162,5 +179,44 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
         MapsDialogFragment mDialogFragment = new MapsDialogFragment();
         mDialogFragment.setArguments(b);
         mDialogFragment.show(fm, "maps_dialog_fragment");
+    }
+
+    private void loadMarkers(){
+
+        if(mDataSource == null){
+            mDataSource = new MarkerDataSource(getActivity());
+
+            mDataSource.open();
+            List<CustomMarker> values = mDataSource.getAllCustomMarkers();
+
+            if(values.size()==0) {
+                loadSampleValues(mDataSource);
+                values = mDataSource.getAllCustomMarkers();
+            }
+
+            for(CustomMarker marker: values){
+                mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(marker.getLat(), marker.getLon()))
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                        .title(marker.getName())
+                        .snippet(marker.getInformation()));
+            }
+        }
+
+    }
+
+    private void loadSampleValues(MarkerDataSource database){
+
+        database.createCustomMarker(new CustomMarker(
+                "Cafe Jeunesse",
+                "Description du Cafe Jeunesse",
+                48.426633f,
+                -71.069603f));
+
+        database.createCustomMarker(new CustomMarker(
+                "Service de travail",
+                "Description du Service de travail",
+                48.424861f,
+                -71.047181f));
     }
 }
