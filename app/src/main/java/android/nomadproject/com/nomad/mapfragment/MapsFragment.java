@@ -205,6 +205,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
                         .title(marker.getName())
                         .snippet(marker.getInformation()));
             }
+            mDataSource.close();
         }
 
     }

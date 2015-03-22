@@ -5,7 +5,9 @@ import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.Fragment;
+import android.content.Intent;
 import android.nomadproject.com.nomad.mapfragment.MapsFragment;
+import android.nomadproject.com.nomad.parametres.ParametreFragment;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -16,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import android.nomadproject.com.nomad.parametres.*;
 
 public class MainDrawerActivity extends Activity
         implements AdapterView.OnItemClickListener {
@@ -24,6 +27,8 @@ public class MainDrawerActivity extends Activity
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private String[] mMenuTitles;
+
+    public static final String TAG = "MyServiceTag";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +61,9 @@ public class MainDrawerActivity extends Activity
             selectItem(0);
         }
 
+        Intent intent = new Intent(getApplicationContext(), ServicesData.class);
+        intent.addCategory(TAG);
+        startService(intent);
     }
 
 
@@ -94,6 +102,9 @@ public class MainDrawerActivity extends Activity
             case 0:
                 fragment = new MapsFragment();
                 break;
+            case 3:
+                fragment = new ParametreFragment();
+                break;
             default:
                 fragment = new MapsFragment();
         }
@@ -106,4 +117,5 @@ public class MainDrawerActivity extends Activity
         mDrawerList.setItemChecked(position,true);
         mDrawerLayout.closeDrawer(mDrawerList);
     }
+
 }
