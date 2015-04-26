@@ -1,9 +1,9 @@
 package android.nomadproject.com.nomad.mapfragment;
 
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.nomadproject.com.nomad.R;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;

@@ -1,7 +1,5 @@
 package android.nomadproject.com.nomad.mapfragment;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
@@ -11,6 +9,8 @@ import android.nomadproject.com.nomad.R;
 import android.nomadproject.com.nomad.database.CustomMarker;
 import android.nomadproject.com.nomad.database.MarkerDataSource;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +21,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -39,7 +39,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
 
     private static int MAPS_LOCATION_UPDATE = 20000;
 
-    private MapFragment mMapFragment;
+    private SupportMapFragment mMapFragment;
     private GoogleMap mMap;
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
@@ -67,12 +67,13 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         // Chargement d'un sous-fragment contenant la map
         FragmentManager fm = getChildFragmentManager();
-        mMapFragment = (MapFragment) fm.findFragmentById(R.id.map_container);
+        mMapFragment = (SupportMapFragment) fm.findFragmentById(R.id.map_container);
         if (mMapFragment == null) {
             // On créé une instance de MapFragment (il ne faut pas passer par le constructeur !)
-            mMapFragment = MapFragment.newInstance();
+            mMapFragment = SupportMapFragment.newInstance();
             // Chargement effectif du sous-fragment
             fm.beginTransaction().replace(R.id.map_container, mMapFragment).commit();
         }
@@ -179,7 +180,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
         b.putString(MapsDialogFragment.TITLE,marker.getTitle());
         b.putString(MapsDialogFragment.INFO,marker.getSnippet());
 
-        FragmentManager fm = getFragmentManager();
+        FragmentManager fm = getActivity().getSupportFragmentManager();
         MapsDialogFragment mDialogFragment = new MapsDialogFragment();
         mDialogFragment.setArguments(b);
         mDialogFragment.show(fm, "maps_dialog_fragment");

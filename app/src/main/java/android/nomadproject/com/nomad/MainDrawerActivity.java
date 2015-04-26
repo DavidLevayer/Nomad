@@ -1,14 +1,15 @@
 package android.nomadproject.com.nomad;
 
 import android.app.ActionBar;
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.app.Fragment;
 import android.content.Intent;
 import android.nomadproject.com.nomad.mapfragment.MapsFragment;
 import android.nomadproject.com.nomad.parametres.ParametreFragment;
+import android.nomadproject.com.nomad.parametres.ServicesData;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Menu;
@@ -18,12 +19,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import android.nomadproject.com.nomad.parametres.*;
-
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 
-public class MainDrawerActivity extends Activity
+public class MainDrawerActivity extends FragmentActivity
         implements AdapterView.OnItemClickListener {
 
     private DrawerLayout mDrawerLayout;
@@ -113,13 +112,13 @@ public class MainDrawerActivity extends Activity
                 fragment = new MapsFragment();
                 break;
             case 3:
-                fragment = new ParametreFragment(callbackManager);
+                fragment = new ParametreFragment();
                 break;
             default:
                 fragment = new MapsFragment();
         }
 
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
         ft.replace(R.id.content_frame, fragment);
         ft.commit();
