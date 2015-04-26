@@ -20,6 +20,9 @@ import android.widget.ListView;
 
 import android.nomadproject.com.nomad.parametres.*;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookSdk;
+
 public class MainDrawerActivity extends Activity
         implements AdapterView.OnItemClickListener {
 
@@ -27,6 +30,8 @@ public class MainDrawerActivity extends Activity
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private String[] mMenuTitles;
+
+    public static CallbackManager callbackManager;
 
     public static final String TAG = "MyServiceTag";
 
@@ -64,6 +69,11 @@ public class MainDrawerActivity extends Activity
         Intent intent = new Intent(getApplicationContext(), ServicesData.class);
         intent.addCategory(TAG);
         startService(intent);
+
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        callbackManager = CallbackManager.Factory.create();
+
     }
 
 
@@ -103,7 +113,7 @@ public class MainDrawerActivity extends Activity
                 fragment = new MapsFragment();
                 break;
             case 3:
-                fragment = new ParametreFragment();
+                fragment = new ParametreFragment(callbackManager);
                 break;
             default:
                 fragment = new MapsFragment();
@@ -118,4 +128,8 @@ public class MainDrawerActivity extends Activity
         mDrawerLayout.closeDrawer(mDrawerList);
     }
 
+
+    public CallbackManager getCallbackManager(){
+        return this.callbackManager;
+    }
 }
