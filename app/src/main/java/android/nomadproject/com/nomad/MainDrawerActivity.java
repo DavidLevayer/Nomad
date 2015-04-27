@@ -69,12 +69,9 @@ public class MainDrawerActivity extends FragmentActivity
         intent.addCategory(TAG);
         startService(intent);
 
-
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

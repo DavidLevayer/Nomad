@@ -8,6 +8,7 @@ import android.location.LocationManager;
 import android.nomadproject.com.nomad.R;
 import android.nomadproject.com.nomad.database.CustomMarker;
 import android.nomadproject.com.nomad.database.MarkerDataSource;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -28,6 +30,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
+
+import se.walkercrou.places.GooglePlaces;
+import se.walkercrou.places.Place;
 
 /**
  * Created by David Levayer on 20/03/15.
@@ -171,6 +176,10 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
                 MAPS_LOCATION_UPDATE,
                 0,
                 mLocationListener);
+
+
+        // Chargement de Places
+        new PlaceTask().execute();
     }
 
     @Override
@@ -242,5 +251,25 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
                 "Description de l'aide juridique",
                 48.427702f,
                 -71.060376f));
+    }
+
+    private class PlaceTask extends AsyncTask<Void,Void,Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            String key = getResources().getString(R.string.google_map_key);
+            GooglePlaces client = new GooglePlaces(key);
+            List<Place> places = client.getNearbyPlaces(
+                    mLocation.getLatitude(),
+                    mLocation.getLongitude(),
+                    30000,
+                    5);
+
+            for(Place p: places)
+                Toast.makeText(mContext, p.getName(), Toast.LENGTH_SHORT).show();
+
+            return null;
+        }
     }
 }
