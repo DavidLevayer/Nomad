@@ -18,7 +18,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -63,6 +62,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View v = inflater.inflate(R.layout.fragment_map_main, container, false);
+        /*
         Button refresh = (Button) v.findViewById(R.id.map_button);
         refresh.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,6 +73,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
                 }
             }
         });
+        */
 
         mHorizontalListView = (HorizontalListView)v.findViewById(R.id.hlistview);
         return v;

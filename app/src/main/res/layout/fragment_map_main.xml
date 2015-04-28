@@ -19,11 +19,4 @@
         android:layout_marginBottom="5dp"
         android:layout_alignParentBottom="true"/>
 
-    <Button
-        android:id="@+id/map_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/hlistview"
-        android:text="Recharger la base de données"/>
-
 </RelativeLayout>
