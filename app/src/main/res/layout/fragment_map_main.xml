@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -9,17 +10,20 @@
         android:layout_height="match_parent"
         android:id="@+id/map_container"/>
 
-    <com.devsmart.android.ui.HorizontialListView
-        android:id="@+id/listview"
+    <com.devsmart.android.ui.HorizontalListView
+        android:id="@+id/hlistview"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="#ddd" />
+        android:layout_height="250dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_alignParentBottom="true"/>
 
     <Button
         android:id="@+id/map_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@id/hlistview"
         android:text="Recharger la base de données"/>
 
 </RelativeLayout>

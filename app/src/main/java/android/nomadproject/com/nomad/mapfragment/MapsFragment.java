@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.devsmart.android.ui.HorizontalListView;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,16 +30,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
-
-import se.walkercrou.places.GooglePlaces;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by David Levayer on 20/03/15.
  */
 public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClickListener {
-
-    protected View mView;
-    protected Context mContext;
 
     private static int MAPS_LOCATION_UPDATE = 20000;
 
@@ -47,6 +44,9 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
     private Location mLocation;
+
+    private HorizontalListView mHorizontalListView;
+    private ListitemAdapter mListitemAdapter;
 
     private MarkerDataSource mDataSource;
 
@@ -64,6 +64,8 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
                 }
             }
         });
+
+        mHorizontalListView = (HorizontalListView)v.findViewById(R.id.hlistview);
         return v;
     }
 
@@ -177,7 +179,16 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
 
 
         // Chargement de Places
-        new PlaceTask().execute();
+        try {
+            Listitem[] list = new PlaceTask().execute().get();
+            mListitemAdapter = new ListitemAdapter(getActivity(), R.layout.fragment_map_listitem, list);
+            mHorizontalListView.setAdapter(mListitemAdapter);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -251,13 +262,13 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
                 -71.060376f));
     }
 
-    private class PlaceTask extends AsyncTask<Void,Void,Void> {
+    private class PlaceTask extends AsyncTask<Void,Void,Listitem[]> {
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Listitem[] doInBackground(Void... params) {
 
             //String key = getResources().getString(R.string.google_map_key);
-            GooglePlaces client = new GooglePlaces("AIzaSyBppfx-SUp-Ek9TYMJS7mdX2DSkNMfwjwY");
+            //GooglePlaces client = new GooglePlaces("AIzaSyBppfx-SUp-Ek9TYMJS7mdX2DSkNMfwjwY");
             /*
             List<Place> places = client.getNearbyPlaces(
                     mLocation.getLatitude(),
@@ -268,8 +279,13 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
             for(Place p: places)
                 Log.d("PLACES", p.getName());
             */
+            Listitem[] list = new Listitem[5];
+            for(int i=0; i<5; i++)
+                list[i] = new Listitem("test"+i,null);
 
-            return null;
+
+
+            return list;
         }
     }
 }
