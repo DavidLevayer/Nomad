@@ -277,15 +277,15 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
         protected Listitem[] doInBackground(Void... params) {
 
             //String key = getResources().getString(R.string.google_map_key);
-            GooglePlaces client = new GooglePlaces("AIzaSyBppfx-SUp-Ek9TYMJS7mdX2DSkNMfwjwY");
-            /*
+            GooglePlaces client = new GooglePlaces(getResources().getString(R.string.google_places_api));
+
             List<Place> places = client.getNearbyPlaces(
                     mLocation.getLatitude(),
                     mLocation.getLongitude(),
                     30000,
                     10);
-            */
-            List<Place> places = client.getPlacesByQuery("Empire State Building", 10);
+
+            //List<Place> places = client.getPlacesByQuery("Empire State Building", 10);
 
             Listitem[] list = new Listitem[places.size()];
             int i = 0;
