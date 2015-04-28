@@ -1,6 +1,8 @@
 package android.nomadproject.com.nomad.mapfragment;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -12,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,8 +32,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.InputStream;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
+
+import se.walkercrou.places.GooglePlaces;
+import se.walkercrou.places.Photo;
+import se.walkercrou.places.Place;
 
 /**
  * Created by David Levayer on 20/03/15.
@@ -268,23 +277,35 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
         protected Listitem[] doInBackground(Void... params) {
 
             //String key = getResources().getString(R.string.google_map_key);
-            //GooglePlaces client = new GooglePlaces("AIzaSyBppfx-SUp-Ek9TYMJS7mdX2DSkNMfwjwY");
+            GooglePlaces client = new GooglePlaces("AIzaSyBppfx-SUp-Ek9TYMJS7mdX2DSkNMfwjwY");
             /*
             List<Place> places = client.getNearbyPlaces(
                     mLocation.getLatitude(),
                     mLocation.getLongitude(),
                     30000,
-                    5);
-
-            for(Place p: places)
-                Log.d("PLACES", p.getName());
+                    10);
             */
-            Listitem[] list = new Listitem[5];
-            for(int i=0; i<5; i++)
-                list[i] = new Listitem("test"+i,null);
+            List<Place> places = client.getPlacesByQuery("Empire State Building", 10);
 
+            Listitem[] list = new Listitem[places.size()];
+            int i = 0;
+            for(Place p: places) {
+                Log.d("PLACES", p.getName());
+                String title = p.getName();
+                List<Photo> photos = p.getPhotos();
+                Bitmap image = null;
+                if(photos.size()>0) {
+                    Photo photo = photos.get(new Random().nextInt(photos.size()));
+                    InputStream imageStream = photo.download(200, 230).getInputStream();
+                    image = BitmapFactory.decodeStream(imageStream);
+                }
+                list[i] = new Listitem(title, image);
+                i++;
+            }
 
-
+            //Listitem[] list = new Listitem[5];
+            //for(int i=0; i<5; i++)
+            //    list[i] = new Listitem("test"+i,null);
             return list;
         }
     }
