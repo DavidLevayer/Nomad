@@ -12,7 +12,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +31,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.List;
 
 import se.walkercrou.places.GooglePlaces;
-import se.walkercrou.places.Place;
 
 /**
  * Created by David Levayer on 20/03/15.
@@ -260,6 +258,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
 
             //String key = getResources().getString(R.string.google_map_key);
             GooglePlaces client = new GooglePlaces("AIzaSyBppfx-SUp-Ek9TYMJS7mdX2DSkNMfwjwY");
+            /*
             List<Place> places = client.getNearbyPlaces(
                     mLocation.getLatitude(),
                     mLocation.getLongitude(),
@@ -268,6 +267,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
 
             for(Place p: places)
                 Log.d("PLACES", p.getName());
+            */
 
             return null;
         }
