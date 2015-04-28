@@ -6,5 +6,7 @@
     <color name="list_item_background_pressed">#F5F5F5</color>
 
     <color name="actionbar">#af424242</color>
+    <color name="accent_color_transparent">#77009688</color>
+    <color name="accent_color">#009688</color>
 
 </resources>
