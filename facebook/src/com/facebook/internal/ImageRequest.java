@@ -1,21 +1,17 @@
 /**
- * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
+ * Copyright 2010-present Facebook.
  *
- * You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
- * copy, modify, and distribute this software in source code or binary form for use
- * in connection with the web services and APIs provided by Facebook.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * As with any software that integrates with the Facebook platform, your use of
- * this software is subject to the Facebook Developer Principles and Policies
- * [http://developers.facebook.com/policy/]. This copyright notice shall be
- * included in all copies or substantial portions of the software.
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.facebook.internal;
@@ -25,13 +21,7 @@ import android.net.Uri;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Locale;
 
-/**
- * com.facebook.internal is solely for the use of other packages within the
- * Facebook SDK for Android. Use of any of the classes in this package is
- * unsupported, and they may be modified or removed without warning at any time.
- */
 public class ImageRequest {
 
     public interface Callback {
@@ -45,24 +35,24 @@ public class ImageRequest {
 
     public static final int UNSPECIFIED_DIMENSION = 0;
 
-    private static final String SCHEME = "https";
-    private static final String AUTHORITY = "graph.facebook.com";
-    private static final String PATH = "%s/picture";
+    private static final String PROFILEPIC_URL_FORMAT =
+            "https://graph.facebook.com/%s/picture";
     private static final String HEIGHT_PARAM = "height";
     private static final String WIDTH_PARAM = "width";
     private static final String MIGRATION_PARAM = "migration_overrides";
     private static final String MIGRATION_VALUE = "{october_2012:true}";
 
     private Context context;
-    private Uri imageUri;
+    private URI imageUri;
     private Callback callback;
     private boolean allowCachedRedirects;
     private Object callerTag;
 
-    public static Uri getProfilePictureUri(
+    public static URI getProfilePictureUrl(
             String userId,
             int width,
-            int height) {
+            int height)
+            throws URISyntaxException {
 
         Validate.notNullOrEmpty(userId, "userId");
 
@@ -73,11 +63,7 @@ public class ImageRequest {
             throw new IllegalArgumentException("Either width or height must be greater than 0");
         }
 
-        Uri.Builder builder =
-                new Uri.Builder()
-                        .scheme(SCHEME)
-                        .authority(AUTHORITY)
-                        .path(String.format(Locale.US, PATH, userId));
+        Uri.Builder builder = new Uri.Builder().encodedPath(String.format(PROFILEPIC_URL_FORMAT, userId));
 
         if (height != UNSPECIFIED_DIMENSION) {
             builder.appendQueryParameter(HEIGHT_PARAM, String.valueOf(height));
@@ -89,7 +75,7 @@ public class ImageRequest {
 
         builder.appendQueryParameter(MIGRATION_PARAM, MIGRATION_VALUE);
 
-        return builder.build();
+        return new URI(builder.toString());
     }
 
     private ImageRequest(Builder builder) {
@@ -104,7 +90,7 @@ public class ImageRequest {
         return context;
     }
 
-    public Uri getImageUri() {
+    public URI getImageUri() {
         return imageUri;
     }
 
@@ -123,17 +109,17 @@ public class ImageRequest {
     public static class Builder {
         // Required
         private Context context;
-        private Uri imageUrl;
+        private URI imageUrl;
 
         // Optional
         private Callback callback;
         private boolean allowCachedRedirects;
         private Object callerTag;
 
-        public Builder(Context context, Uri imageUri) {
-            Validate.notNull(imageUri, "imageUri");
+        public Builder(Context context, URI imageUrl) {
+            Validate.notNull(imageUrl, "imageUrl");
             this.context = context;
-            this.imageUrl = imageUri;
+            this.imageUrl = imageUrl;
         }
 
         public Builder setCallback(Callback callback) {

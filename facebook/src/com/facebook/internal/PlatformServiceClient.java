@@ -1,21 +1,17 @@
 /**
- * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
+ * Copyright 2010-present Facebook.
  *
- * You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
- * copy, modify, and distribute this software in source code or binary form for use
- * in connection with the web services and APIs provided by Facebook.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * As with any software that integrates with the Facebook platform, your use of
- * this software is subject to the Facebook Developer Principles and Policies
- * [http://developers.facebook.com/policy/]. This copyright notice shall be
- * included in all copies or substantial portions of the software.
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.facebook.internal;
@@ -27,9 +23,9 @@ import android.content.ServiceConnection;
 import android.os.*;
 
 /**
- * com.facebook.internal is solely for the use of other packages within the Facebook SDK for
- * Android. Use of any of the classes in this package is unsupported, and they may be modified or
- * removed without warning at any time.
+ * com.facebook.internal is solely for the use of other packages within the Facebook SDK for Android. Use of
+ * any of the classes in this package is unsupported, and they may be modified or removed without warning at
+ * any time.
  */
 abstract public class PlatformServiceClient implements ServiceConnection {
     private final Context context;
@@ -42,11 +38,7 @@ abstract public class PlatformServiceClient implements ServiceConnection {
     private final String applicationId;
     private final int protocolVersion;
 
-    public PlatformServiceClient(
-            Context context,
-            int requestMessage,
-            int replyMessage,
-            int protocolVersion,
+    public PlatformServiceClient(Context context, int requestMessage, int replyMessage, int protocolVersion,
             String applicationId) {
         Context applicationContext = context.getApplicationContext();
 
@@ -78,8 +70,7 @@ abstract public class PlatformServiceClient implements ServiceConnection {
         }
 
         // Make sure that the service can handle the requested protocol version
-        int availableVersion = NativeProtocol.getLatestAvailableProtocolVersionForService(
-                protocolVersion);
+        int availableVersion = NativeProtocol.getLatestAvailableProtocolVersionForService(context, protocolVersion);
         if (availableVersion == NativeProtocol.NO_PROTOCOL_AVAILABLE) {
             return false;
         }

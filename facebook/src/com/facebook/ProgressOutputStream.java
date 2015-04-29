@@ -1,21 +1,17 @@
 /**
- * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
+ * Copyright 2010-present Facebook.
  *
- * You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
- * copy, modify, and distribute this software in source code or binary form for use
- * in connection with the web services and APIs provided by Facebook.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * As with any software that integrates with the Facebook platform, your use of
- * this software is subject to the Facebook Developer Principles and Policies
- * [http://developers.facebook.com/policy/]. This copyright notice shall be
- * included in all copies or substantial portions of the software.
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.facebook;
@@ -28,24 +24,20 @@ import java.io.OutputStream;
 import java.util.Map;
 
 class ProgressOutputStream extends FilterOutputStream implements RequestOutputStream {
-    private final Map<GraphRequest, RequestProgress> progressMap;
-    private final GraphRequestBatch requests;
+    private final Map<Request, RequestProgress> progressMap;
+    private final RequestBatch requests;
     private final long threshold;
 
     private long batchProgress, lastReportedProgress, maxProgress;
     private RequestProgress currentRequestProgress;
 
-    ProgressOutputStream(
-            OutputStream out,
-            GraphRequestBatch requests,
-            Map<GraphRequest, RequestProgress> progressMap,
-            long maxProgress) {
+    ProgressOutputStream(OutputStream out, RequestBatch requests, Map<Request, RequestProgress> progressMap, long maxProgress) {
         super(out);
         this.requests = requests;
         this.progressMap = progressMap;
         this.maxProgress = maxProgress;
 
-        this.threshold = FacebookSdk.getOnProgressThreshold();
+        this.threshold = Settings.getOnProgressThreshold();
     }
 
     private void addProgress(long size) {
@@ -62,13 +54,12 @@ class ProgressOutputStream extends FilterOutputStream implements RequestOutputSt
 
     private void reportBatchProgress() {
         if (batchProgress > lastReportedProgress) {
-            for (GraphRequestBatch.Callback callback : requests.getCallbacks()) {
-                if (callback instanceof GraphRequestBatch.OnProgressCallback) {
+            for (RequestBatch.Callback callback : requests.getCallbacks()) {
+                if (callback instanceof RequestBatch.OnProgressCallback) {
                     final Handler callbackHandler = requests.getCallbackHandler();
 
                     // Keep copies to avoid threading issues
-                    final GraphRequestBatch.OnProgressCallback progressCallback =
-                            (GraphRequestBatch.OnProgressCallback) callback;
+                    final RequestBatch.OnProgressCallback progressCallback = (RequestBatch.OnProgressCallback) callback;
                     if (callbackHandler == null) {
                         progressCallback.onBatchProgress(requests, batchProgress, maxProgress);
                     }
@@ -76,10 +67,7 @@ class ProgressOutputStream extends FilterOutputStream implements RequestOutputSt
                         callbackHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                progressCallback.onBatchProgress(
-                                        requests,
-                                        batchProgress,
-                                        maxProgress);
+                                progressCallback.onBatchProgress(requests, batchProgress, maxProgress);
                             }
                         });
                     }
@@ -90,7 +78,7 @@ class ProgressOutputStream extends FilterOutputStream implements RequestOutputSt
         }
     }
 
-    public void setCurrentRequest(GraphRequest request) {
+    public void setCurrentRequest(Request request) {
         currentRequestProgress = request != null? progressMap.get(request) : null;
     }
 
