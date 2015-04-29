@@ -40,7 +40,6 @@ public class MainDrawerActivity extends FragmentActivity
         setContentView(R.layout.activity_main_drawer);
 
         final ActionBar mActionBar = getActionBar();
-        mActionBar.setDisplayShowTitleEnabled(false);
         mActionBar.setDisplayHomeAsUpEnabled(true);
         mActionBar.setHomeButtonEnabled(true);
 
@@ -49,7 +48,7 @@ public class MainDrawerActivity extends FragmentActivity
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
         mDrawerList.setAdapter(
-                new ArrayAdapter<String>(this,R.layout.activity_drawer_list_item,mMenuTitles));
+                new ArrayAdapter<>(this,R.layout.activity_drawer_list_item,mMenuTitles));
 
         mDrawerList.setOnItemClickListener(this);
 
@@ -82,13 +81,8 @@ public class MainDrawerActivity extends FragmentActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
 
