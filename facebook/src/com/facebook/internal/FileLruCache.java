@@ -1,30 +1,25 @@
 /**
- * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
+ * Copyright 2010-present Facebook.
  *
- * You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
- * copy, modify, and distribute this software in source code or binary form for use
- * in connection with the web services and APIs provided by Facebook.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * As with any software that integrates with the Facebook platform, your use of
- * this software is subject to the Facebook Developer Principles and Policies
- * [http://developers.facebook.com/policy/]. This copyright notice shall be
- * included in all copies or substantial portions of the software.
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.facebook.internal;
 
+import android.content.Context;
 import android.util.Log;
-
-import com.facebook.FacebookSdk;
 import com.facebook.LoggingBehavior;
-
+import com.facebook.Settings;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -38,31 +33,28 @@ import java.util.concurrent.atomic.AtomicLong;
 // This class is intended to be thread-safe.
 //
 // There are two classes of files:  buffer files and cache files:
-// - A buffer file is in the process of being written, and there is an open stream on the file.
-//   These files are named as "bufferN" where N is an incrementing integer.  On startup, we delete
-//   all existing files of this form. Once the stream is closed, we rename the buffer file to a
-//   cache file or attempt to delete if this fails.  We do not otherwise ever attempt to delete
-//   these files.
-// - A cache file is a non-changing file that is named by the md5 hash of the cache key.  We monitor
-//   the size of these files in aggregate and remove the oldest one(s) to stay under quota.  This
-//   process does not block threads calling into this class, so theoretically we could go
-//   arbitrarily over quota but in practice this should not happen because deleting files should be
-//   much cheaper than downloading new file content.
+// - A buffer file is in the process of being written, and there is an open stream on the file.  These files are
+//   named as "bufferN" where N is an incrementing integer.  On startup, we delete all existing files of this form.
+//   Once the stream is closed, we rename the buffer file to a cache file or attempt to delete if this fails.  We
+//   do not otherwise ever attempt to delete these files.
+// - A cache file is a non-changing file that is named by the md5 hash of the cache key.  We monitor the size of
+//   these files in aggregate and remove the oldest one(s) to stay under quota.  This process does not block threads
+//   calling into this class, so theoretically we could go arbitrarily over quota but in practice this should not
+//   happen because deleting files should be much cheaper than downloading new file content.
 //
-// Since there can only ever be one thread accessing a particular buffer file, we do not synchronize
-// access to these. We do assume that file rename is atomic when converting a buffer file to a cache
-// file, and that if multiple files are renamed to a single target that exactly one of them
-// continues to exist.
+// Since there can only ever be one thread accessing a particular buffer file, we do not synchronize access to these.
+// We do assume that file rename is atomic when converting a buffer file to a cache file, and that if multiple files
+// are renamed to a single target that exactly one of them continues to exist.
 //
-// Standard POSIX file semantics guarantee being able to continue to use a file handle even after
-// the corresponding file has been deleted.  Given this and that cache files never change other than
-// deleting in trim() or clear(),  we only have to ensure that there is at most one trim() or
-// clear() process deleting files at any given time.
+// Standard POSIX file semantics guarantee being able to continue to use a file handle even after the
+// corresponding file has been deleted.  Given this and that cache files never change other than deleting in trim()
+// or clear(),  we only have to ensure that there is at most one trim() or clear() process deleting files at any
+// given time.
 
 /**
- * com.facebook.internal is solely for the use of other packages within the Facebook SDK for
- * Android. Use of any of the classes in this package is unsupported, and they may be modified or
- * removed without warning at any time.
+ * com.facebook.internal is solely for the use of other packages within the Facebook SDK for Android. Use of
+ * any of the classes in this package is unsupported, and they may be modified or removed without warning at
+ * any time.
  */
 public final class FileLruCache {
     static final String TAG = FileLruCache.class.getSimpleName();
@@ -80,10 +72,10 @@ public final class FileLruCache {
     private AtomicLong lastClearCacheTime = new AtomicLong(0);
 
     // The value of tag should be a final String that works as a directory name.
-    public FileLruCache(String tag, Limits limits) {
+    public FileLruCache(Context context, String tag, Limits limits) {
         this.tag = tag;
         this.limits = limits;
-        this.directory = new File(FacebookSdk.getCacheDir(), tag);
+        this.directory = new File(context.getCacheDir(), tag);
         this.lock = new Object();
 
         // Ensure the cache dir exists
@@ -93,9 +85,8 @@ public final class FileLruCache {
         }
     }
 
-    // This is not robust to files changing dynamically underneath it and should therefore only be
-    // used for test code.  If we ever need this for product code we need to think through
-    // synchronization.
+    // This is not robust to files changing dynamically underneath it and should therefore only be used
+    // for test code.  If we ever need this for product code we need to think through synchronization.
     // See the threading notes at the top of this class.
     //
     // Also, since trim() runs asynchronously now, this blocks until any pending trim has completed.
@@ -134,8 +125,7 @@ public final class FileLruCache {
             return null;
         }
 
-        BufferedInputStream buffered =
-                new BufferedInputStream(input, Utility.DEFAULT_STREAM_BUFFER_SIZE);
+        BufferedInputStream buffered = new BufferedInputStream(input, Utility.DEFAULT_STREAM_BUFFER_SIZE);
         boolean success = false;
 
         try {
@@ -157,11 +147,8 @@ public final class FileLruCache {
             }
 
             long accessTime = new Date().getTime();
-            Logger.log(
-                    LoggingBehavior.CACHE,
-                    TAG,
-                    "Setting lastModified to " + Long.valueOf(accessTime) + " for " +
-                            file.getName());
+            Logger.log(LoggingBehavior.CACHE, TAG, "Setting lastModified to " + Long.valueOf(accessTime) + " for "
+                    + file.getName());
             file.setLastModified(accessTime);
 
             success = true;
@@ -173,7 +160,7 @@ public final class FileLruCache {
         }
     }
 
-    public OutputStream openPutStream(final String key) throws IOException {
+    OutputStream openPutStream(final String key) throws IOException {
         return openPutStream(key, null);
     }
 
@@ -188,11 +175,7 @@ public final class FileLruCache {
         try {
             file = new FileOutputStream(buffer);
         } catch (FileNotFoundException e) {
-            Logger.log(
-                    LoggingBehavior.CACHE,
-                    Log.WARN,
-                    TAG,
-                    "Error creating buffer output stream: " + e);
+            Logger.log(LoggingBehavior.CACHE, Log.WARN, TAG, "Error creating buffer output stream: " + e);
             throw new IOException(e.getMessage());
         }
 
@@ -210,10 +193,8 @@ public final class FileLruCache {
             }
         };
 
-        CloseCallbackOutputStream cleanup =
-                new CloseCallbackOutputStream(file, renameToTargetCallback);
-        BufferedOutputStream buffered =
-                new BufferedOutputStream(cleanup, Utility.DEFAULT_STREAM_BUFFER_SIZE);
+        CloseCallbackOutputStream cleanup = new CloseCallbackOutputStream(file, renameToTargetCallback);
+        BufferedOutputStream buffered = new BufferedOutputStream(cleanup, Utility.DEFAULT_STREAM_BUFFER_SIZE);
         boolean success = false;
 
         try {
@@ -230,11 +211,7 @@ public final class FileLruCache {
             return buffered;
         } catch (JSONException e) {
             // JSON is an implementation detail of the cache, so don't let JSON exceptions out.
-            Logger.log(
-                    LoggingBehavior.CACHE,
-                    Log.WARN,
-                    TAG,
-                    "Error creating JSON header for cache file: " + e);
+            Logger.log(LoggingBehavior.CACHE, Log.WARN, TAG, "Error creating JSON header for cache file: " + e);
             throw new IOException(e.getMessage());
         } finally {
             if (!success) {
@@ -248,7 +225,7 @@ public final class FileLruCache {
         final File[] filesToDelete = directory.listFiles(BufferFile.excludeBufferFiles());
         lastClearCacheTime.set(System.currentTimeMillis());
         if (filesToDelete != null) {
-            FacebookSdk.getExecutor().execute(new Runnable() {
+            Settings.getExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
                     for (File file : filesToDelete) {
@@ -259,23 +236,14 @@ public final class FileLruCache {
         }
     }
 
-    /**
-     * The location of the cache.
-     * @return The location of the cache.
-     */
-    public String getLocation() {
-        return this.directory.getPath();
-    }
-
     private void renameToTargetAndTrim(String key, File buffer) {
         final File target = new File(directory, Utility.md5hash(key));
 
-        // This is triggered by close().  By the time close() returns, the file should be cached, so
-        // this needs to happen synchronously on this thread.
+        // This is triggered by close().  By the time close() returns, the file should be cached, so this needs to
+        // happen synchronously on this thread.
         //
-        // However, it does not need to be synchronized, since in the race we will just start an
-        // unnecessary trim operation.  Avoiding the cost of holding the lock across the file
-        // operation seems worth this cost.
+        // However, it does not need to be synchronized, since in the race we will just start an unnecesary trim
+        // operation.  Avoiding the cost of holding the lock across the file operation seems worth this cost.
         if (!buffer.renameTo(target)) {
             buffer.delete();
         }
@@ -299,7 +267,7 @@ public final class FileLruCache {
         synchronized (lock) {
             if (!isTrimPending) {
                 isTrimPending = true;
-                FacebookSdk.getExecutor().execute(new Runnable() {
+                Settings.getExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
                         trim();
@@ -324,11 +292,8 @@ public final class FileLruCache {
                 for (File file : filesToTrim) {
                     ModifiedFile modified = new ModifiedFile(file);
                     heap.add(modified);
-                    Logger.log(
-                            LoggingBehavior.CACHE,
-                            TAG,
-                            "  trim considering time=" + Long.valueOf(modified.getModified()) +
-                                    " name=" + modified.getFile().getName());
+                    Logger.log(LoggingBehavior.CACHE, TAG, "  trim considering time=" + Long.valueOf(modified.getModified())
+                            + " name=" + modified.getFile().getName());
 
                     size += file.length();
                     count++;
@@ -437,11 +402,9 @@ public final class FileLruCache {
             while (count < headerBytes.length) {
                 int readCount = stream.read(headerBytes, count, headerBytes.length - count);
                 if (readCount < 1) {
-                    Logger.log(
-                            LoggingBehavior.CACHE,
-                            TAG,
-                            "readHeader: stream.read stopped at " + Integer.valueOf(count) +
-                                    " when expected " + headerBytes.length);
+                    Logger.log(LoggingBehavior.CACHE, TAG,
+                            "readHeader: stream.read stopped at " + Integer.valueOf(count) + " when expected "
+                                    + headerBytes.length);
                     return null;
                 }
                 count += readCount;
@@ -453,11 +416,7 @@ public final class FileLruCache {
             try {
                 Object parsed = tokener.nextValue();
                 if (!(parsed instanceof JSONObject)) {
-                    Logger.log(
-                            LoggingBehavior.CACHE,
-                            TAG,
-                            "readHeader: expected JSONObject, got " +
-                                    parsed.getClass().getCanonicalName());
+                    Logger.log(LoggingBehavior.CACHE, TAG, "readHeader: expected JSONObject, got " + parsed.getClass().getCanonicalName());
                     return null;
                 }
                 header = (JSONObject) parsed;
@@ -525,10 +484,9 @@ public final class FileLruCache {
         @Override
         public void close() throws IOException {
             // According to http://www.cs.cornell.edu/andru/javaspec/11.doc.html:
-            //  "If a finally clause is executed because of abrupt completion of a try block and the
-            //   finally clause itself completes abruptly, then the reason for the abrupt completion
-            //   of the try block is discarded and the new reason for abrupt completion is
-            //   propagated from there."
+            //  "If a finally clause is executed because of abrupt completion of a try block and the finally clause
+            //   itself completes abruptly, then the reason for the abrupt completion of the try block is discarded
+            //   and the new reason for abrupt completion is propagated from there."
             //
             // Android does appear to behave like this.
             try {

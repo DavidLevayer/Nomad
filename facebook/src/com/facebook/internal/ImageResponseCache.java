@@ -1,27 +1,22 @@
 /**
- * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
+ * Copyright 2010-present Facebook.
  *
- * You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
- * copy, modify, and distribute this software in source code or binary form for use
- * in connection with the web services and APIs provided by Facebook.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * As with any software that integrates with the Facebook platform, your use of
- * this software is subject to the Facebook Developer Principles and Policies
- * [http://developers.facebook.com/policy/]. This copyright notice shall be
- * included in all copies or substantial portions of the software.
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.facebook.internal;
 
 import android.content.Context;
-import android.net.Uri;
 import android.util.Log;
 import com.facebook.LoggingBehavior;
 
@@ -33,11 +28,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-/**
- * com.facebook.internal is solely for the use of other packages within the
- * Facebook SDK for Android. Use of any of the classes in this package is
- * unsupported, and they may be modified or removed without warning at any time.
- */
 class ImageResponseCache {
     static final String TAG = ImageResponseCache.class.getSimpleName();
 
@@ -45,20 +35,20 @@ class ImageResponseCache {
 
     synchronized static FileLruCache getCache(Context context) throws IOException{
         if (imageCache == null) {
-            imageCache = new FileLruCache(TAG, new FileLruCache.Limits());
+            imageCache = new FileLruCache(context.getApplicationContext(), TAG, new FileLruCache.Limits());
         }
         return imageCache;
     }
 
     // Get stream from cache, or return null if the image is not cached.
     // Does not throw if there was an error.
-    static InputStream getCachedImageStream(Uri uri, Context context) {
+    static InputStream getCachedImageStream(URI url, Context context) {
         InputStream imageStream = null;
-        if (uri != null) {
-            if (isCDNURL(uri)) {
+        if (url != null) {
+            if (isCDNURL(url)) {
                 try {
                     FileLruCache cache = getCache(context);
-                    imageStream = cache.get(uri.toString());
+                    imageStream = cache.get(url.toString());
                 } catch (IOException e) {
                     Logger.log(LoggingBehavior.CACHE, Log.WARN, TAG, e.toString());
                 }
@@ -68,33 +58,32 @@ class ImageResponseCache {
         return imageStream;
     }
 
-    static InputStream interceptAndCacheImageStream(
-            Context context,
-            HttpURLConnection connection
-    ) throws IOException {
+    static InputStream interceptAndCacheImageStream(Context context, HttpURLConnection connection) throws IOException {
         InputStream stream = null;
         if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            Uri uri = Uri.parse(connection.getURL().toString());
+            URL url = connection.getURL();
             stream = connection.getInputStream(); // Default stream in case caching fails
             try {
-                if (isCDNURL(uri)) {
+                if (isCDNURL(url.toURI())) {
                     FileLruCache cache = getCache(context);
 
                     // Wrap stream with a caching stream
                     stream = cache.interceptAndPut(
-                            uri.toString(),
+                            url.toString(),
                             new BufferedHttpInputStream(stream, connection));
                 }
             } catch (IOException e) {
                 // Caching is best effort
+            } catch (URISyntaxException e) {
+            // Caching is best effort
             }
         }
         return stream;
     }
 
-   private static boolean isCDNURL(Uri uri) {
-        if (uri != null) {
-            String uriHost = uri.getHost();
+   private static boolean isCDNURL(URI url) {
+        if (url != null) {
+            String uriHost = url.getHost();
 
             if (uriHost.endsWith("fbcdn.net")) {
                 return true;

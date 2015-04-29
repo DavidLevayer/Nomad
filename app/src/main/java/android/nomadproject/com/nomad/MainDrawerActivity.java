@@ -19,8 +19,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.facebook.CallbackManager;
-import com.facebook.FacebookSdk;
 
 public class MainDrawerActivity extends FragmentActivity
         implements AdapterView.OnItemClickListener {
@@ -30,7 +28,7 @@ public class MainDrawerActivity extends FragmentActivity
     private ActionBarDrawerToggle mDrawerToggle;
     private String[] mMenuTitles;
 
-    public static CallbackManager callbackManager;
+    //public static CallbackManager callbackManager;
 
     public static final String TAG = "MyServiceTag";
 
@@ -67,9 +65,6 @@ public class MainDrawerActivity extends FragmentActivity
         Intent intent = new Intent(getApplicationContext(), ServicesData.class);
         intent.addCategory(TAG);
         startService(intent);
-
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        callbackManager = CallbackManager.Factory.create();
     }
 
     @Override
@@ -119,7 +114,7 @@ public class MainDrawerActivity extends FragmentActivity
     }
 
 
-    public CallbackManager getCallbackManager(){
+   /* public CallbackManager getCallbackManager(){
         return this.callbackManager;
-    }
+    }*/
 }
