@@ -38,8 +38,8 @@ public class MainDrawerActivity extends FragmentActivity
         setContentView(R.layout.activity_main_drawer);
 
         final ActionBar mActionBar = getActionBar();
-        mActionBar.setDisplayHomeAsUpEnabled(true);
-        mActionBar.setHomeButtonEnabled(true);
+        //mActionBar.setDisplayHomeAsUpEnabled(true);
+        //mActionBar.setHomeButtonEnabled(true);
 
         mMenuTitles = getResources().getStringArray(R.array.menu_titles_array);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);

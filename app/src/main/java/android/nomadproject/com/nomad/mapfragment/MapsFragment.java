@@ -193,6 +193,13 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
             Listitem[] list = new PlaceTask().execute().get();
             mListitemAdapter = new ListitemAdapter(getActivity(), R.layout.fragment_map_listitem, list);
             mHorizontalListView.setAdapter(mListitemAdapter);
+
+            for(Listitem item : list)
+                mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(item.getLat(), item.getLon()))
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                        .title(item.getTitle()));
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -300,7 +307,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnInfoWindowClic
                     InputStream imageStream = photo.download(200, 230).getInputStream();
                     image = BitmapFactory.decodeStream(imageStream);
                 }
-                list[i] = new Listitem(title, image);
+                list[i] = new Listitem(title, image, p.getLatitude(), p.getLongitude());
                 i++;
             }
 
